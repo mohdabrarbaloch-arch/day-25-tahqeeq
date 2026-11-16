@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tahqeeq"
+version = "1.0.0"
+description = "Credibility analysis for news text that shows its evidence"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "ABraz Baloch" }]
+keywords = ["misinformation", "credibility", "nlp", "fastapi", "media-literacy"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Framework :: FastAPI",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "fastapi>=0.115,<1.0",
+    "uvicorn[standard]>=0.30,<1.0",
+    "sqlalchemy>=2.0,<3.0",
+    "pydantic>=2.7,<3.0",
+    "pydantic-settings>=2.3,<3.0",
+    "email-validator>=2.1,<3.0",
+    "python-jose[cryptography]>=3.3,<4.0",
+    "bcrypt>=4.0,<5.0",
+    "python-multipart>=0.0.9,<1.0",
+    "httpx>=0.27,<1.0",
+    "psycopg[binary]>=3.1,<4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0,<9.0",
+    "pytest-cov>=5.0,<6.0",
+    "ruff>=0.6,<1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/mohdabrarbaloch-arch/day-25-tahqeeq"
+Repository = "https://github.com/mohdabrarbaloch-arch/day-25-tahqeeq"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [".venv", "build", "dist", "*.egg-info"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF"]
+# RUF001/RUF002 flag "ambiguous" unicode. This app deliberately handles
+# typographic punctuation — em dashes, curly quotes, guillemets — because that
+# is what real news copy contains, and the quote detector depends on it.
+ignore = ["B008", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+# Sample articles and smoke scripts contain long prose fixtures. Wrapping a
+# paragraph of test copy to 100 columns makes it harder to read, not easier.
+"tests/conftest.py" = ["E501"]
+"tests/test_signals.py" = ["E501"]
+"scripts/*" = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

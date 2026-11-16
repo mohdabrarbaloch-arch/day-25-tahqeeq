@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Tahqeeq scores how a news story is written and shows the evidence behind every signal. It does not tell you whether a claim is true.">
+<meta name="theme-color" content="#0d1117">
+<title>Tahqeeq — read the writing, not the headline</title>
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">ت</span>
+      <span class="brand-text">
+        <strong>Tahqeeq</strong>
+        <small>تحقیق</small>
+      </span>
+    </a>
+    <nav class="topnav" id="topnav">
+      <button class="btn btn-ghost" id="nav-analyse" type="button">Analyse</button>
+      <button class="btn btn-ghost" id="nav-history" type="button" hidden>History</button>
+      <button class="btn btn-ghost" id="nav-login" type="button">Log in</button>
+      <button class="btn btn-primary" id="nav-signup" type="button">Sign up</button>
+      <button class="btn btn-ghost" id="nav-logout" type="button" hidden>Log out</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ── Hero + analyser ─────────────────────────────────────── -->
+  <section class="hero" id="view-analyse">
+    <h1>Read the writing,<br><em>not the headline.</em></h1>
+    <p class="lede">
+      Paste a news story. Tahqeeq scores how it is written — sourcing, hedging,
+      hype, urgency — and shows you the exact words behind every point it takes off.
+    </p>
+    <p class="disclaimer-inline">
+      <strong>It cannot tell you whether a claim is true.</strong> It has no fact
+      database. What it can do is show you whether the writing behaves like
+      reporting or like persuasion.
+    </p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab is-active" data-tab="text" role="tab" aria-selected="true">Paste text</button>
+      <button class="tab" data-tab="url" role="tab" aria-selected="false">From a URL</button>
+    </div>
+
+    <form class="analyser" id="form-text" autocomplete="off">
+      <label class="field">
+        <span class="field-label">Headline <span class="opt">optional — enables the headline-vs-body check</span></span>
+        <input type="text" id="input-headline" maxlength="500" placeholder="Inflation eases to 4.2 percent in October">
+      </label>
+      <label class="field">
+        <span class="field-label">Article text</span>
+        <textarea id="input-text" rows="10" placeholder="Paste the full article here. At least 80 characters — the more text, the more reliable the read."></textarea>
+        <span class="counter"><span id="char-count">0</span> characters</span>
+      </label>
+      <div class="actions">
+        <button class="btn btn-primary btn-lg" type="submit" id="btn-analyse">Analyse</button>
+        <button class="btn btn-ghost" type="button" id="btn-sample">Try a sample</button>
+      </div>
+    </form>
+
+    <form class="analyser" id="form-url" hidden autocomplete="off">
+      <label class="field">
+        <span class="field-label">Article URL</span>
+        <input type="url" id="input-url" placeholder="https://www.dawn.com/news/..." required>
+        <span class="hint">The page is fetched, stripped to text, and analysed. Pages that need JavaScript will not work.</span>
+      </label>
+      <div class="actions">
+        <button class="btn btn-primary btn-lg" type="submit" id="btn-analyse-url">Fetch &amp; analyse</button>
+      </div>
+    </form>
+
+    <div class="error" id="error-box" hidden role="alert"></div>
+  </section>
+
+  <!-- ── Result ──────────────────────────────────────────────── -->
+  <section class="result" id="view-result" hidden>
+    <button class="btn btn-ghost back" id="btn-back" type="button">← Analyse another</button>
+
+    <div class="score-card" id="score-card">
+      <div class="score-main">
+        <div class="score-number" id="score-number">—</div>
+        <div class="score-meta">
+          <div class="band-pill" id="band-pill">—</div>
+          <div class="confidence" id="confidence-line">—</div>
+        </div>
+      </div>
+      <p class="band-desc" id="band-desc"></p>
+      <div class="score-bar" aria-hidden="true"><div class="score-fill" id="score-fill"></div></div>
+      <p class="score-note">
+        Higher is better. This measures the <em>writing</em>, not the truth of the claims.
+      </p>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <h2>What pulled it down</h2>
+        <ul class="concern-list" id="concerns"></ul>
+      </div>
+      <div class="panel">
+        <h2>What held it up</h2>
+        <ul class="strength-list" id="strengths"></ul>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Every signal, with its evidence</h2>
+      <p class="panel-sub">Each row is one detector. Open a row to see the exact spans it matched.</p>
+      <div class="signals" id="signals"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Text statistics</h2>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="actions actions-end">
+      <button class="btn btn-primary" id="btn-save" type="button" hidden>Save to history</button>
+      <button class="btn btn-ghost" id="btn-copy" type="button">Copy summary</button>
+    </div>
+  </section>
+
+  <!-- ── History ─────────────────────────────────────────────── -->
+  <section class="history" id="view-history" hidden>
+    <h1>Your analyses</h1>
+    <p class="lede">Everything you have saved. Click one to reopen it.</p>
+    <div id="history-list" class="history-list"></div>
+    <p class="empty" id="history-empty" hidden>Nothing saved yet. Analyse something and hit “Save to history”.</p>
+  </section>
+
+  <!-- ── Auth ────────────────────────────────────────────────── -->
+  <section class="auth" id="view-auth" hidden>
+    <div class="auth-card">
+      <h1 id="auth-title">Log in</h1>
+      <p class="lede" id="auth-sub">Save your analyses and come back to them.</p>
+      <form id="form-auth" autocomplete="on">
+        <label class="field">
+          <span class="field-label">Email</span>
+          <input type="email" id="auth-email" required autocomplete="email">
+        </label>
+        <label class="field">
+          <span class="field-label">Password</span>
+          <input type="password" id="auth-password" required minlength="8" autocomplete="current-password">
+          <span class="hint" id="auth-hint" hidden>At least 8 characters.</span>
+        </label>
+        <div class="error" id="auth-error" hidden role="alert"></div>
+        <button class="btn btn-primary btn-lg btn-block" type="submit" id="auth-submit">Log in</button>
+      </form>
+      <p class="auth-switch">
+        <span id="auth-switch-text">No account?</span>
+        <button class="link" type="button" id="auth-switch">Sign up</button>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>
+      <strong>Tahqeeq</strong> scores style, not truth. A careful liar writes like a
+      journalist, and well-written satire will score badly. Use it as one input, never
+      as a verdict.
+    </p>
+    <p class="footer-meta">
+      Built by ABraz Baloch · <a href="https://github.com/mohdabrarbaloch-arch/day-25-tahqeeq">source</a> · MIT
+    </p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
